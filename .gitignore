@@ -5,3 +5,6 @@
 *~
 \#*#
 *.swp
+/build/
+/env/
+/src/tkvdb/*.c
