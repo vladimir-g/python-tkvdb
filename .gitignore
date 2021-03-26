@@ -7,4 +7,5 @@
 *.swp
 /build/
 /env/
+/dist/
 /src/tkvdb/*.c

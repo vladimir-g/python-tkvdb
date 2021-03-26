@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 
 
 try:
@@ -40,7 +40,11 @@ setup(
     author='Vladimir Gorbunov',
     author_email='vsg@suburban.me',
     license='ISC',
-    packages=find_packages('src'),
+    packages=['tkvdb'],
     package_dir={'': 'src'},
-    ext_modules=get_modules()    
+    ext_modules=get_modules(),
+    zip_safe=False,
+    package_data = {
+        'tkvdb': ['*.pxd']
+    },
 )
