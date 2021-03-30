@@ -203,7 +203,7 @@ Transaction methods. Most of them may raise an exception:
 - `get(key: bytes, default: bytes = None) -> bytes` -- dict-like get with
   default value.
 - `delete(key: bytes)` -- delete value by key.
-- `__getitem__`, `__setitem__`, `__delete__` -- dict-like methods.
+- `__getitem__`, `__setitem__`, `__delitem__` -- dict-like methods.
 - `free()` -- free transaction (called in `with` statement
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
