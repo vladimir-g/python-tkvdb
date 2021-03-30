@@ -31,6 +31,21 @@ class TestMapping(TestMixin, unittest.TestCase):
             self.assertEqual(tr.get(b'missing', b'default'), b'default')
             tr.rollback()
 
+    def test_delete(self):
+        """Test transaction delitem."""
+        with self.db.transaction() as tr:
+            tr[b'to-delete'] = b'value'
+            tr.commit()
+
+        with self.db.transaction() as tr:
+            self.assertEqual(tr[b'to-delete'], b'value')
+            del tr[b'to-delete']
+            tr.commit()
+
+        with self.db.transaction() as tr:
+            with self.assertRaises(KeyError):
+                tr[b'to-delete']
+
 
 if __name__ == '__main__':
     unittest.main()
