@@ -160,11 +160,11 @@ with db.transaction() as tr:
     print(tr.getvalue(b'key'))
 ```
 
-Note that `with` statement *does not do commit or rollback*. Do
-`commit` or `rollback` with your own code, or don't do anything
-(implies rollback-like behavior). Transaction is started (`begin`)
-automatically and will be freed (`free`) at exit from `with` block
-though.
+Note that `with` statement *does not do commit, but rollbacks on
+exception*. Do `commit` or `rollback` with your own code, or don't do
+anything (implies rollback-like behavior). Transaction is started
+(`begin`) automatically and will be freed (`free`) at exit from `with`
+block though.
 
 Transaction also has Python dict-like interface:
 
