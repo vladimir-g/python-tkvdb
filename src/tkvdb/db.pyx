@@ -32,3 +32,11 @@ cdef class Tkvdb:
     def __dealloc__(self):
         """Destructor."""
         self.close()
+
+    def __enter__(self):
+        """Context manager enter."""
+        return self
+
+    def __exit__(self, *args):
+        """Context manager exit."""
+        self.close()

@@ -119,6 +119,16 @@ db = Tkvdb(path_to_db_file)
 db.close()
 ```
 
+Context manager (`with` statment) that includes auto closing is also
+available:
+
+```python
+with Tkvdb(path_to_db_file) as db:
+    # some code
+    with db.transaction() as tr:
+        # more code
+```
+
 Attributes (readonly):
 - `path: str` -- path to database file.
 - `is_opened: bool` -- shows that database is initialized properly.

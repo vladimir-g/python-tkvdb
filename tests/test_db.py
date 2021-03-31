@@ -37,6 +37,13 @@ class TestDB(unittest.TestCase):
         self.close_db()
         self.assertFalse(self.db.is_opened)
 
+    def test_context_manager(self):
+        """Test context manager with statement."""
+        with Tkvdb(self.path) as db:
+            self.assertTrue(db.is_opened)
+            self.assertEqual(db.path, self.path)
+        # Not really a good test for closing
+
 
 if __name__ == '__main__':
     unittest.main()
