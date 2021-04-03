@@ -1,65 +1,75 @@
-from cpython.bytes cimport PyBytes_FromStringAndSize, PyBytes_AsString, PyBytes_AsStringAndSize
+from cpython.bytes cimport PyBytes_FromStringAndSize
 
 cimport ctkvdb
 from tkvdb.iterators cimport KeysIterator
+from tkvdb.errors import make_error
 
 
 cdef class Cursor:
-    # cdef ctkvdb.tkvdb_tr* tr
-    # cdef ctkvdb.tkvdb_cursor* cursor
-    # cpdef bint is_started
-    # cpdef bint is_opened        # FIXME naming
-
+    """Pythonic wrapper around tkvdb cursor."""
     def __cinit__(self):
+        self.is_initialized = False
         self.is_started = False
 
     cdef init(self, ctkvdb.tkvdb_tr* tr):
+        """Initialize C cursor."""
         self.tr = tr
         self.cursor = ctkvdb.tkvdb_cursor_create(tr) # FIXME
-        self.is_opened = True
-
-    # cpdef seek(self, key, seek):
-    #     self.cursor.seek(self.cursor, Utils.make_datum(key), seek)
+        self.is_initialized = True
 
     cpdef bytes key(self):
-        # print("KEY LEN {}".format(self.keysize()))
+        """Get current cursor key."""
         return PyBytes_FromStringAndSize(
             <char *>self.cursor.key(self.cursor),
             self.keysize()
         )
 
-    # FIXME error checking
     cpdef bytes val(self):
-        # print("VAL LEN {}".format(self.keysize()))
+        """Get current cursor value."""
         return PyBytes_FromStringAndSize(
             <char *>self.cursor.val(self.cursor),
             self.valsize()
         )
 
-    # def key_datum(self):
-    #     return Utils.get_datum(self.cursor.key_datum(self.cursor))
-
-    # def val_datum(self):
-    #     return Utils.get_datum(self.cursor.val_datum(self.cursor))
-
-    cpdef Py_ssize_t keysize(self): # Maybe size_t?
+    cpdef Py_ssize_t keysize(self):
+        """Get current key size."""
         return self.cursor.keysize(self.cursor)
 
     cpdef Py_ssize_t valsize(self):
+        """Get current value size."""
         return self.cursor.valsize(self.cursor)
 
-    cpdef ctkvdb.TKVDB_RES next(self):
-        return self.cursor.next(self.cursor)
+    cpdef next(self):
+        """Call cursor next method."""
+        ok = self.cursor.next(self.cursor)
+        if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
+            error = make_error(ok)
+            if error is not None:
+                raise error()
 
-    cpdef ctkvdb.TKVDB_RES first(self):
-        return self.cursor.first(self.cursor)
+    cpdef first(self):
+        """Call cursor first method."""
+        ok = self.cursor.first(self.cursor)
+        if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
+            error = make_error(ok)
+            if error is not None:
+                raise error()
+        else:
+            self.is_started = True
 
-    cpdef ctkvdb.TKVDB_RES free(self):
-        print("cursor free")
-        self.cursor.free(self.cursor)
+    cpdef free(self):
+        """Free cursor."""
+        if self.is_initialized:
+            self.cursor.free(self.cursor)
+            self.is_initialized = False
+            self.is_started = False
+
+    def __dealloc__(self):
+        """Destructor."""
+        self.free()
 
     def __iter__(self):
+        """Return keys iterator as default iterator."""
         return KeysIterator(self)
 
-    # cpdef __iter__(self):
-    # return KeyIterator(self)
+    # FIXME add seex, last, prev, key_datum/val_datum

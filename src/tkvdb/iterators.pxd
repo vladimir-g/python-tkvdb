@@ -3,7 +3,6 @@ from tkvdb.cursor cimport Cursor
 
 cdef class BaseIterator:
     cdef Cursor cursor
-    cpdef bint is_started
 
     cpdef value(self)
 

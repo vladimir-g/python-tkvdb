@@ -4,9 +4,7 @@ Python-tkvdb is a Cython wrapper for
 [tkvdb](https://github.com/vmxdev/tkvdb) trie key-value
 database. Python 3 is required.
 
-**Project is in very alpha stage now. Just do not use.** Many features
-from base library aren't implemented now, like RAM version,
-TKVDB_PARAMS and cursor search.
+**Project is in very alpha stage now. Just do not use.**
 
 ## Installation
 
@@ -220,7 +218,55 @@ Transaction methods. Most of them may raise an exception:
 
 ### Cursors
 
-TBD.
+Cursors are used to iterate through database contents. They are
+defined in `tkvdb.cursor` module, C implementation is wrapped in
+`tkvdb.cursor.Cursor` class.
+
+Cursors are attached to transaction and created by
+`Transacion.cursor()` method. They also may be created directly, but
+need to be initialized in Cython.
+
+Although cursors are sole way to iterate and seek in tkvdb, it is
+better and easier to use python-style iterators for
+such purposes.
+
+Example usage:
+
+```python
+with self.db.transaction() as tr:
+    c = tr.cursor()
+    c.first()
+    while True:
+        print(c.key(), c.value())
+        try:
+            c.next()
+        except tkvdb.errors.NotFoundError:
+            break
+```
+
+Notice: `first` and `next` methods throw `tkvdb.errors.EmptyError` on
+empty database, not `NotFoundError`. Cursors may be iterated by key
+(see `tkvdb.iterator.KeysIterator`).
+
+Attributes (readonly):
+- `is_initialized: bool` -- shows that cursor underlying
+  structures are initialized properly.
+- `is_started: bool` -- shows that `first()` method was called.
+
+Cursor methods.
+
+- `first()` -- move cursor to first item in database.
+- `next()` -- move cursor to next item in database.
+- `key() -> bytes` -- get current key.
+- `val() -> bytes` -- get current value.
+- `keysize() -> int` -- get current key size.
+- `valsize() -> int` -- get current value size.
+- `free()` -- free cursor.
+- `__iter__()` -- returns `tkvdb.iterators.KeysIterator`.
+
+### Iterators
+
+TBD
 
 ### Errors
 
@@ -269,6 +315,15 @@ Errors:
 - `CorruptedError` -- `TKVDB_RES.TKVDB_CORRUPTED` code.
 - `NotStartedError` -- `TKVDB_RES.TKVDB_NOT_STARTED` code.
 - `ModifiedError` -- `TKVDB_RES.TKVDB_MODIFIED` code.
+
+
+## Missing features
+
+- Iterators tests and documentation
+- TKVDB_PARAM isn't implemented
+- Cursor seek/prev/last
+- RAM mode
+- PyPi package
 
 ## License
 
