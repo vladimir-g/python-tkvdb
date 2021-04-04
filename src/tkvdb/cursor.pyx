@@ -1,7 +1,7 @@
 from cpython.bytes cimport PyBytes_FromStringAndSize
 
 cimport ctkvdb
-from tkvdb.iterators cimport KeysIterator
+from tkvdb.iterators cimport KeysIterator, ItemsIterator, ValuesIterator
 from tkvdb.errors import make_error
 
 
@@ -70,7 +70,19 @@ cdef class Cursor:
 
     def __iter__(self):
         """Return keys iterator as default iterator."""
+        return self.keys()
+
+    cpdef BaseIterator items(self):
+        """Dict-like items iterator."""
+        return ItemsIterator(self)
+
+    cpdef BaseIterator keys(self):
+        """Dict-like keys iterator."""
         return KeysIterator(self)
+
+    cpdef BaseIterator values(self):
+        """Dict-like values iterator."""
+        return ValuesIterator(self)
 
     def __enter__(self):
         """Context manager enter."""

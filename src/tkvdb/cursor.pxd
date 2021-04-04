@@ -1,4 +1,5 @@
 cimport ctkvdb
+from tkvdb.iterators cimport BaseIterator
 
 
 cdef class Cursor:
@@ -15,3 +16,6 @@ cdef class Cursor:
     cpdef next(self)
     cpdef first(self)
     cpdef free(self)
+    cpdef BaseIterator items(self)
+    cpdef BaseIterator values(self)
+    cpdef BaseIterator keys(self)

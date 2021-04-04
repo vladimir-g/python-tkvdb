@@ -222,6 +222,57 @@ Transaction methods. Most of them may raise an exception:
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
 
+### Iterators
+
+Transaction can be traversed using iterators. It is also the main way
+for iterating through database contents.
+
+Module `tkvdb.iterators` provides three dict-like iterators that use
+`tkvdb.cursor.Cursor` inside:
+
+- `tkvdb.iterators.KeysIterator` - iterating over keys.
+- `tkvdb.iterators.ValuesIterator` - iterating over values.
+- `tkvdb.iterators.ItemsIterator` - iterating over key-value pair.
+
+They can be used with transaction:
+
+```python
+with self.db.transaction() as tr:
+    for key in tr:  # or tr.keys()
+        print(tr[key])
+    for value in tr.values():
+        print(value)
+    for key, value in tr.items():
+        print(key, value)
+```
+
+In all loops new instance of `Cursor` is used.
+
+They also can be used with cursor:
+
+```python
+with self.db.transaction() as tr:
+    with tr.cursor() as c:
+        for key in c:
+            print(c.key(), c.keysize())
+```
+
+Notice that cursor iterators use same underlying `Cursor` object, so
+they would iterate from same place where cursor stopped before:
+
+```python
+with self.db.transaction() as tr:
+    with tr.cursor() as c:
+        c.first()
+        # do some iteration with c.next()
+        for key in c:
+            print(key)  # it wouldn't be first key
+            if something:
+                break
+        for value in c.values():  # starts from last iterated key
+            print(value)
+```
+
 ### Cursors
 
 Cursors are used to iterate through database contents. They are
@@ -261,8 +312,8 @@ with self.db.transaction() as tr:
 ```
 
 Notice: `first` and `next` methods throw `tkvdb.errors.EmptyError` on
-empty database, not `NotFoundError`. Cursors may be iterated by key
-(see `tkvdb.iterator.KeysIterator`).
+empty database, not `NotFoundError`. Cursors may be iterated by using
+iterators (see previous section).
 
 Attributes (readonly):
 - `is_initialized: bool` -- shows that cursor underlying
@@ -279,10 +330,7 @@ Cursor methods.
 - `valsize() -> int` -- get current value size.
 - `free()` -- free cursor.
 - `__iter__()` -- returns `tkvdb.iterators.KeysIterator`.
-
-### Iterators
-
-TBD
+- `keys()`, `values()`, `items()` -- return dict-like iterators.
 
 ### Errors
 
@@ -335,7 +383,6 @@ Errors:
 
 ## Missing features
 
-- Iterators tests and documentation
 - TKVDB_PARAM isn't implemented
 - Cursor seek/prev/last
 - RAM mode
