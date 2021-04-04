@@ -7,17 +7,6 @@ from .base import TestMixin
 
 class TestCursor(TestMixin, unittest.TestCase):
     """Test cursors."""
-    def create_data(self, prefix='prefix', num=10):
-        """Insert range of k-v pairs to db for testing."""
-        values = {}
-        with self.db.transaction() as tr:
-            for i in range(num):
-                key = '{}-{}'.format(prefix, i).encode('utf-8')
-                value = '{}-val-{}'.format(prefix, i).encode('utf-8')
-                tr[key] = values[key] = value
-            tr.commit()
-        return values
-        
     def test_init(self):
         """Test cursor initialization."""
         with self.db.transaction() as tr:
@@ -68,6 +57,30 @@ class TestCursor(TestMixin, unittest.TestCase):
                     break
             self.assertEqual(set(keys), set(values.keys()))
             self.assertEqual(set(vals), set(values.values()))
+
+    def test_context_manager(self):
+        """Test with statement ."""
+        values = self.create_data('next')
+
+        with self.db.transaction() as tr:
+            with tr.cursor() as c:
+                c.first()
+                # Same as test_next
+                keys = set()
+                vals = set()
+                while True:
+                    k, v = c.key(), c.val()
+                    keys.add(k)
+                    vals.add(v)
+                    self.assertEqual(v, values[k])
+                    self.assertEqual(len(k), c.keysize())
+                    self.assertEqual(len(v), c.valsize())
+                    try:
+                        c.next()
+                    except NotFoundError:
+                        break
+                self.assertEqual(set(keys), set(values.keys()))
+                self.assertEqual(set(vals), set(values.values()))
 
 
 if __name__ == '__main__':

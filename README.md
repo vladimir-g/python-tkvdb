@@ -240,14 +240,24 @@ Example usage:
 
 ```python
 with self.db.transaction() as tr:
-    c = tr.cursor()
+    with tr.cursor() as c:
+        c.first()
+        while True:
+            print(c.key(), c.value())
+            try:
+                c.next()
+            except tkvdb.errors.NotFoundError:
+                break
+```
+
+Cursor also may be used without `with` statement, it would be freed
+anyway on garbage collection:
+
+```python
+with self.db.transaction() as tr:
+    c = tr.cursor():
     c.first()
-    while True:
-        print(c.key(), c.value())
-        try:
-            c.next()
-        except tkvdb.errors.NotFoundError:
-            break
+    # ...
 ```
 
 Notice: `first` and `next` methods throw `tkvdb.errors.EmptyError` on

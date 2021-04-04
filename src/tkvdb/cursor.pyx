@@ -72,4 +72,12 @@ cdef class Cursor:
         """Return keys iterator as default iterator."""
         return KeysIterator(self)
 
+    def __enter__(self):
+        """Context manager enter."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Context manager exit."""
+        self.free()
+
     # FIXME add seex, last, prev, key_datum/val_datum
