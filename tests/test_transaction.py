@@ -12,6 +12,7 @@ class TestTransaction(TestMixin, unittest.TestCase):
         transaction = self.db.transaction()
         self.assertTrue(transaction.is_initialized)
         self.assertFalse(transaction.is_started)
+        self.assertFalse(transaction.ram_only)
         with self.assertRaises(NotStartedError):
             transaction.put(b'key', b'value')
         transaction.begin()

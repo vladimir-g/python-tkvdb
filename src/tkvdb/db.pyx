@@ -16,7 +16,7 @@ cdef class Tkvdb:
 
     cpdef Transaction transaction(self):
         """Create transaction object."""
-        tr = Transaction()
+        tr = Transaction(ram_only=False)
         tr.init(self.db)
         return tr
 

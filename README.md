@@ -208,9 +208,13 @@ Attributes (readonly):
 - `is_started: bool` -- shows that `begin()` method was called.
 - `is_changed: bool` -- shows that transaction had any uncommited
   changes (i.e. `put()` was used).
+- `ram_only: bool` -- indicates that transaction is RAM-only.
 
 Transaction methods. Most of them may raise an exception:
 
+- `Transaction(ram_only=True)` (constructor) -- create transaction
+  instance. Must be called manually only for RAM-only usage, otherwise
+  `db.transaction()` must be used instead.
 - `begin()` -- starts transaction, calls underlying `tkvdb_tr->begin()`.
 - `getvalue(key: bytes) -> bytes` -- get value by key.
 - `put(key: bytes)` -- insert value into db by key.
@@ -221,6 +225,24 @@ Transaction methods. Most of them may raise an exception:
 - `free()` -- free transaction (called in `with` statement
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
+
+#### RAM-only transactions
+
+Transactions also may be used in RAM-only mode. These transactions don't
+require database file and use less memory. They are cleared on
+`commit()` or `rollback()`. See more about RAM-only transactions in
+original documentation.
+
+Use `tkvdb.Transaction()` constructor to create RAM-only transaction
+without database. This transaction may also be used with `with`
+statement, same auto-begin rules apply. Example:
+
+```python
+with Transaction() as tr:
+    tr[b'key'] = b'value'
+    print(tr[b'key'])  # prints b'value'
+    tr.commit()  # clears transaction
+```
 
 ### Iterators
 
@@ -385,7 +407,6 @@ Errors:
 
 - TKVDB_PARAM isn't implemented
 - Cursor seek/prev/last
-- RAM mode
 - PyPi package
 
 ## License

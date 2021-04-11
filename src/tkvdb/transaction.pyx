@@ -8,10 +8,16 @@ from tkvdb.errors import make_error, NotFoundError, EmptyError
 
 cdef class Transaction:
     """Pythonic wrapper around tkvdb transaction."""
-    def __cinit__(self):
+    def __cinit__(self, ram_only=True):
         self.is_initialized = False
         self.is_started = False
         self.is_changed = False
+        self.ram_only = ram_only
+        if ram_only:
+            # Initialize transaction as RAM-only
+            param = ctkvdb.tkvdb_params_create() # FIXME
+            self.tr = ctkvdb.tkvdb_tr_create(NULL, param)
+            self.is_initialized = True
 
     cdef init(self, ctkvdb.tkvdb* db):
         """Initialize C transaction."""
@@ -19,6 +25,7 @@ cdef class Transaction:
         param = ctkvdb.tkvdb_params_create() # FIXME
         self.tr = ctkvdb.tkvdb_tr_create(db, param) # FIXME
         self.is_initialized = True
+        self.ram_only = False
 
     cpdef Cursor cursor(self):
         """Create and initialize Cursor."""

@@ -9,6 +9,7 @@ cdef class Transaction:
     cdef readonly bint is_initialized
     cdef readonly bint is_started
     cdef readonly bint is_changed
+    cdef readonly bint ram_only
 
     cdef init(self, ctkvdb.tkvdb* db)
     cpdef Cursor cursor(self)
