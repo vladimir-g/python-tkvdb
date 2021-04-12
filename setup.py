@@ -34,11 +34,19 @@ def get_modules():
     return extensions
 
 
+readme = os.path.join(os.path.dirname(__file__), 'README.md')
+with open(readme, 'r', encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='python-tkvdb',
     version='0.1.0',
     author='Vladimir Gorbunov',
     author_email='vsg@suburban.me',
+    url='https://github.com/vladimir-g/python-tkvdb/',
+    description='Cython wrapper for tkvdb radix trie key-value database',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license='ISC',
     packages=['tkvdb'],
     package_dir={'': 'src'},
@@ -47,4 +55,21 @@ setup(
     package_data = {
         'tkvdb': ['*.pxd']
     },
+    python_requires=">=3.5",
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Topic :: Database',
+        'Topic :: Database :: Database Engines/Servers',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: ISC License (ISCL)',
+        'Operating System :: OS Independent',
+        'Programming Language :: C',
+        'Programming Language :: Cython',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+    ]
 )
