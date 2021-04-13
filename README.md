@@ -4,12 +4,21 @@ Python-tkvdb is a Cython wrapper for
 [tkvdb](https://github.com/vmxdev/tkvdb) trie key-value
 database. Python 3 is required.
 
-**Project is in very alpha stage now. Just do not use.**
+**Project is in alpha stage now.**
 
 ## Installation
 
 This is a typical python/cython package that uses setuptools build
 system.
+
+### From PyPi
+
+The most simple way of installing is using `pip`:
+
+    pip install python-tkvdb
+
+Considering that package is using Cython, C compiler may be required
+for building if suitable wheel for current platform isn't found.
 
 ### Downloading
 
@@ -407,7 +416,6 @@ Errors:
 
 - TKVDB_PARAM isn't implemented
 - Cursor seek/prev/last
-- PyPi package
 
 ## License
 
