@@ -22,6 +22,7 @@ cdef class Transaction:
         )
         self.is_initialized = True
         self.ram_only = ram_only
+        self.is_started = False
 
     cpdef Cursor cursor(self):
         """Create and initialize Cursor."""

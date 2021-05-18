@@ -99,11 +99,6 @@ Most object have destructors that call `free` internally and do memory
 management on garbage collection, but don't forget that this is
 wrapper for C library.
 
-All objects have internal `init()` method that receives C structures
-(`ctkvdb.tkvdb*` etc), because Cython doesn't allow passing C values
-in `__cinit__` constructor. They may be used from Cython code, but not
-required in Python and called mostly automatically.
-
 Some code examples may also be found in [tests code](tests/).
 
 ### Modules
