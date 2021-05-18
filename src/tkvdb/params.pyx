@@ -19,11 +19,14 @@ class Param(enum.Enum):
 
 cdef class Params:
     """Wrapper for tkvdb_params structure."""
-    def __cinit__(self, params=dict()):
+    def __cinit__(self, params=None):
+        if params is None:
+            params = dict()
         self.params = ctkvdb.tkvdb_params_create()
         self.values = {}
         for param, value in params:
             self.set(param, value)
+        self.is_initialized = True
 
     cpdef get_values(self):
         """Get all set param values."""
@@ -48,7 +51,9 @@ cdef class Params:
 
     cpdef free(self):
         """Free underlying C structure."""
-        ctkvdb.tkvdb_params_free(self.params)
+        if self.is_initialized:
+            ctkvdb.tkvdb_params_free(self.params)
+            self.is_initialized = False
 
     def __dealloc__(self):
         """Destructor."""

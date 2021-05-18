@@ -4,6 +4,7 @@ cimport ctkvdb
 cdef class Params:
     cdef ctkvdb.tkvdb_params* params
     cdef dict values
+    cdef readonly bint is_initialized
 
     cpdef get_values(self)
     cdef ctkvdb.tkvdb_params* get_params(self)
