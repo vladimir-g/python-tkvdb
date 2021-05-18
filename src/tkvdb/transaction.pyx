@@ -4,28 +4,24 @@ cimport ctkvdb
 from tkvdb.cursor cimport Cursor
 from tkvdb.iterators cimport KeysIterator, ItemsIterator, ValuesIterator
 from tkvdb.errors import make_error, NotFoundError, EmptyError
+from tkvdb.params cimport Params
 
 
 cdef class Transaction:
     """Pythonic wrapper around tkvdb transaction."""
-    def __cinit__(self, ram_only=True):
-        self.is_initialized = False
-        self.is_started = False
-        self.is_changed = False
-        self.ram_only = ram_only
-        if ram_only:
-            # Initialize transaction as RAM-only
-            param = ctkvdb.tkvdb_params_create() # FIXME
-            self.tr = ctkvdb.tkvdb_tr_create(NULL, param)
-            self.is_initialized = True
-
-    cdef init(self, ctkvdb.tkvdb* db):
-        """Initialize C transaction."""
-        self.db = db
-        param = ctkvdb.tkvdb_params_create() # FIXME
-        self.tr = ctkvdb.tkvdb_tr_create(db, param) # FIXME
+    def __cinit__(self, db=None, ram_only=True, params=None):
+        if params is None:
+            params = Params()
+        self.params = params
+        cdef ctkvdb.tkvdb* db_ptr = NULL # For RAM-mode
+        if not ram_only:
+            self.db = db
+            db_ptr = self.db.get_db()
+        self.tr = ctkvdb.tkvdb_tr_create(
+            db_ptr, self.params.get_params()
+        )
         self.is_initialized = True
-        self.ram_only = False
+        self.ram_only = ram_only
 
     cpdef Cursor cursor(self):
         """Create and initialize Cursor."""
@@ -63,7 +59,6 @@ cdef class Transaction:
         """Wrapper for tkvdb transaction get."""
         cdef ctkvdb.tkvdb_datum key_datum
 
-        # FIXME return value checks
         PyBytes_AsStringAndSize(
             key,
             <char **>&key_datum.data,
@@ -95,13 +90,12 @@ cdef class Transaction:
         cdef ctkvdb.tkvdb_datum key_datum
         cdef ctkvdb.tkvdb_datum val_datum
 
-        # FIXME return value checks
         PyBytes_AsStringAndSize(
             key,
             <char **>&key_datum.data,
             <Py_ssize_t *>&key_datum.size
         )
-        # FIXME return value checks
+
         PyBytes_AsStringAndSize(
             value,
             <char **>&val_datum.data,

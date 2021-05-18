@@ -1,17 +1,19 @@
 cimport ctkvdb
+cimport tkvdb.db as db
 from tkvdb.cursor cimport Cursor
 from tkvdb.iterators cimport BaseIterator
+from tkvdb.params cimport Params
 
 
 cdef class Transaction:
     cdef ctkvdb.tkvdb_tr* tr
-    cdef ctkvdb.tkvdb* db
     cdef readonly bint is_initialized
     cdef readonly bint is_started
     cdef readonly bint is_changed
     cdef readonly bint ram_only
+    cdef readonly Params params
+    cdef readonly db.Tkvdb db
 
-    cdef init(self, ctkvdb.tkvdb* db)
     cpdef Cursor cursor(self)
     cpdef begin(self)
     cpdef commit(self)

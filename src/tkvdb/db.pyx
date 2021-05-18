@@ -4,20 +4,29 @@ import sys
 cimport ctkvdb
 from tkvdb.transaction cimport Transaction
 from tkvdb.errors import make_error
+from tkvdb.params import Params
 
 
 cdef class Tkvdb:
     """Wrapper around tkvdb database with pythonic interface."""
-    def __cinit__(self, path):
+    def __cinit__(self, str path, Params params=None):
         self.path = path
-        param = ctkvdb.tkvdb_params_create() # FIXME
-        self.db = ctkvdb.tkvdb_open(os.fsencode(path), param)        # FIXME errors
+        if params is None:
+            params = Params()
+        self.db = ctkvdb.tkvdb_open(
+            os.fsencode(path),
+            params.get_params()
+        )
+        self.params = params
         self.is_opened = True
 
-    cpdef Transaction transaction(self):
+    cdef ctkvdb.tkvdb* get_db(self):
+        """Get underlying C database structure."""
+        return self.db
+
+    cpdef Transaction transaction(self, Params params=None):
         """Create transaction object."""
-        tr = Transaction(ram_only=False)
-        tr.init(self.db)
+        tr = Transaction(self, params=params, ram_only=False)
         return tr
 
     cpdef close(self):

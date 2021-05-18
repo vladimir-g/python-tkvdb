@@ -11,6 +11,7 @@ USE_CYTHON = bool(int(os.getenv("USE_CYTHON", 0))) and cythonize is not None
 
 MODULES = (
     {'mod': 'tkvdb.errors', 'files': ["errors"]},
+    {'mod': 'tkvdb.params', 'files': ["params"]},
     {'mod': 'tkvdb.cursor', 'files': ["cursor"]},
     {'mod': 'tkvdb.iterators', 'files': ["iterators"]},
     {'mod': 'tkvdb.transaction', 'files': ["transaction"]},

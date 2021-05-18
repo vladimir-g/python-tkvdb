@@ -21,6 +21,17 @@ cdef extern from "tkvdb.h":
         TKVDB_PARAM_CURSOR_KEY_LIMIT
         TKVDB_PARAM_DBFILE_OPEN_FLAGS
 
+    # cpdef enum TKVDB_PARAM:
+    #     TrDynalloc "TKVDB_PARAM_TR_DYNALLOC"
+    #     TrLimit "TKVDB_PARAM_TR_LIMIT"
+    #     Alignval "TKVDB_PARAM_ALIGNVAL"
+    #     AutoBegin "TKVDB_PARAM_AUTOBEGIN"
+    #     CursorStackDynalloc "TKVDB_PARAM_CURSOR_STACK_DYNALLOC"
+    #     CursorStackLimit "TKVDB_PARAM_CURSOR_STACK_LIMIT"
+    #     CursorKeyDynalloc "TKVDB_PARAM_CURSOR_KEY_DYNALLOC"
+    #     CursorKeyLimit "TKVDB_PARAM_CURSOR_KEY_LIMIT"
+    #     DbfileOpenFlags "TKVDB_PARAM_DBFILE_OPEN_FLAGS"
+
     cpdef enum TKVDB_SEEK:
         TKVDB_SEEK_EQ
         TKVDB_SEEK_LE
