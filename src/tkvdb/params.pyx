@@ -9,7 +9,7 @@ class Param(enum.Enum):
     TrDynalloc = P.TKVDB_PARAM_TR_DYNALLOC
     TrLimit = P.TKVDB_PARAM_TR_LIMIT
     Alignval = P.TKVDB_PARAM_ALIGNVAL
-    AutoBegin = P.TKVDB_PARAM_AUTOBEGIN
+    Autobegin = P.TKVDB_PARAM_AUTOBEGIN
     CursorStackDynalloc = P.TKVDB_PARAM_CURSOR_STACK_DYNALLOC
     CursorStackLimit = P.TKVDB_PARAM_CURSOR_STACK_LIMIT
     CursorKeyDynalloc = P.TKVDB_PARAM_CURSOR_KEY_DYNALLOC
@@ -24,8 +24,9 @@ cdef class Params:
             params = dict()
         self.params = ctkvdb.tkvdb_params_create()
         self.values = {}
-        for param, value in params:
-            self.set(param, value)
+        if params is not None:
+            for param, value in params.items():
+                self.set(param, value)
         self.is_initialized = True
 
     cpdef get_values(self):
