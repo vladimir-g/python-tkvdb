@@ -10,16 +10,19 @@ from tkvdb.params cimport Params
 cdef class Transaction:
     """Pythonic wrapper around tkvdb transaction."""
     def __cinit__(self, db=None, ram_only=True, params=None):
-        if params is None:
-            params = Params()
-        self.params = params
         cdef ctkvdb.tkvdb* db_ptr = NULL # For RAM-mode
         if not ram_only:
             self.db = db
             db_ptr = self.db.get_db()
-        self.tr = ctkvdb.tkvdb_tr_create(
-            db_ptr, self.params.get_params()
-        )
+
+        # Set params to null as default to enable params inheritance
+        # from db
+        cdef ctkvdb.tkvdb_params * params_ptr = NULL
+        if params is not None:
+            self.params = params
+            params_ptr = self.params.get_params()
+
+        self.tr = ctkvdb.tkvdb_tr_create(db_ptr, params_ptr)
         self.is_initialized = True
         self.ram_only = ram_only
         self.is_started = False
