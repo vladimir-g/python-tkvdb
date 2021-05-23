@@ -113,11 +113,14 @@ Project is splitted into multiple python modules:
 - `tkvdb.cursor` -- transaction cursors for iteration. Wrapper around `tkvdb_cursor`.
 - `tkvdb.iterators` -- pythonic iterators for `tkvdb.cursor`.
 - `tkvdb.errors` -- all db-related exceptions that code may throw.
+- `tkvdb.params` -- database and transaction params. Wrapper around `tkvdb_params`.
 
 ### Database initialization
 
 Database is wrapped into the `Tkvdb` object from `tkvdb` or `tkvdb.db`
-modules. At this time only path to database file is supported.
+modules. At this time only path to database file is
+supported. Parameters (`tkvdb.params.Params`) optionally may be passed
+to constructor.
 
 ```python
 from tkvdb import Tkvdb
@@ -142,11 +145,14 @@ Attributes (readonly):
 - `is_opened: bool` -- shows that database is initialized properly.
 
 Methods (may raise exceptions):
-- `Tkvdb(path: str)` (constructor) -- create database instance.
+- `Tkvdb(path: str, params: tkvdb.params.Params = None)` (constructor)
+  -- create database instance.
 - `close()` -- close database.
-- `transaction() -> tkvdb.transaction.Transaction` -- create
-  transaction.
-  
+- `transaction(params: tkvdb.params.Params = None) ->
+  tkvdb.transaction.Transaction` -- create transaction.
+
+There is also Cython method `get_db` that returns `tkvdb_db *`
+pointer.
 
 ### Transactions
 
@@ -157,8 +163,11 @@ mean same thing as in other database systems.
 **Input and ouput uses `bytes` type for everything**. Encode and
 decode strings if needed.
 
+Parameters (`tkvdb.params.Params`) optionally may be passed to
+constructor.
+
 Transaction must be created from database instance (described in
-previous part)
+previous part):
 
 ```python
 transaction = db.transaction()
@@ -216,9 +225,10 @@ Attributes (readonly):
 
 Transaction methods. Most of them may raise an exception:
 
-- `Transaction(ram_only=True)` (constructor) -- create transaction
-  instance. Must be called manually only for RAM-only usage, otherwise
-  `db.transaction()` must be used instead.
+- `Transaction(ram_only=True, params: tkvdb.params.Params = None)`
+  (constructor) -- create transaction instance. Must be called
+  manually only for RAM-only usage, otherwise `db.transaction()` must
+  be used instead.
 - `begin()` -- starts transaction, calls underlying `tkvdb_tr->begin()`.
 - `getvalue(key: bytes) -> bytes` -- get value by key.
 - `put(key: bytes)` -- insert value into db by key.
@@ -229,6 +239,7 @@ Transaction methods. Most of them may raise an exception:
 - `free()` -- free transaction (called in `with` statement
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
+
 
 #### RAM-only transactions
 
@@ -256,9 +267,9 @@ for iterating through database contents.
 Module `tkvdb.iterators` provides three dict-like iterators that use
 `tkvdb.cursor.Cursor` inside:
 
-- `tkvdb.iterators.KeysIterator` - iterating over keys.
-- `tkvdb.iterators.ValuesIterator` - iterating over values.
-- `tkvdb.iterators.ItemsIterator` - iterating over key-value pair.
+- `tkvdb.iterators.KeysIterator` -- iterating over keys.
+- `tkvdb.iterators.ValuesIterator` -- iterating over values.
+- `tkvdb.iterators.ItemsIterator` -- iterating over key-value pair.
 
 They can be used with transaction:
 
@@ -358,6 +369,82 @@ Cursor methods.
 - `__iter__()` -- returns `tkvdb.iterators.KeysIterator`.
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
 
+### Params
+
+Params are used to specify different options for database and/or
+transactions. They are defined in `tkvdb.params` module: the C
+implementation (`tkvdb_params` struct) is wrapped by
+`tkvdb.params.Params` class, and param values are wrapped by the
+`tkvdb.params.Param` enum.
+
+Parameter names transfomed using CamelCase, example: 
+
+```
+TKVDB_PARAM_TR_DYNALLOC => TrDynalloc
+TKVDB_PARAM_CURSOR_STACK_DYNALLOC => CursorStackDynalloc
+```
+
+Available parameters in `tkvdb.params.Param` enum:
+
+- `TrDynalloc` -- `TKVDB_PARAM_TR_DYNALLOC`
+- `TrLimit` -- `TKVDB_PARAM_TR_LIMIT`
+- `Alignval` -- `TKVDB_PARAM_ALIGNVAL`
+- `Autobegin` -- `TKVDB_PARAM_AUTOBEGIN`
+- `CursorStackDynalloc` -- `TKVDB_PARAM_CURSOR_STACK_DYNALLOC`
+- `CursorStackLimit` -- `TKVDB_PARAM_CURSOR_STACK_LIMIT`
+- `CursorKeyDynalloc` -- `TKVDB_PARAM_CURSOR_KEY_DYNALLOC`
+- `CursorKeyLimit` -- `TKVDB_PARAM_CURSOR_KEY_LIMIT`
+- `DbfileOpenFlags` -- `TKVDB_PARAM_DBFILE_OPEN_FLAGS`
+
+Consult with original `tkvdb` documentation for params meaning and
+possible values.
+
+Params usage:
+
+```python
+from tkvdb.params import Params, Param
+
+# Passing params to database
+params = Params({Param.Autobegin: 1})  # set params at init
+with Tkvdb(path, params) as db:
+    # Params also will be passed to db transactions
+    with db.transaction() as tr:
+        # ...
+    # Transaction may use own params
+    params = Params()
+    params.set(Param.TrLimit, 100)
+    with db.transaction(params) as tr:
+        # ...
+
+# Setting params after init
+params = Params()
+params.set(Param.Autobegin, 1)
+tr = Transaction(params=params)  # RAM-only transaction
+```
+
+As in original `tkvdb` code, params from database are passed to
+db-bound transaction, if they aren't overrided directly by passing
+another `Params` instance to transaction.
+
+Python implementation also stores all set params and stores them in
+internal `values` dict. Notice that it tracks only params that were
+set directly, so default values aren't known to `Params` wrapper.
+
+Params attributes:
+- `is_initialized: bool` -- shows that params underlying structures
+  are initialized properly.
+
+Params methods:
+- `Params(params=None)` (constructor) -- create params
+  instance. Argument `params` may be dict with param names and values.
+- `get_values()` -- return all set params.
+- `get(param: tkvdb.params.Param)` -- return single param value.
+- `set(param: tkvdb.params.Param, value: int)` -- set param value.
+- `free()` -- free params object.
+
+There is also Cython method `get_params` that returns `tkvdb_params *`
+pointer.
+
 ### Errors
 
 Error classes are defined in `tkvdb.errors` module. Every non-ok
@@ -409,7 +496,6 @@ Errors:
 
 ## Missing features
 
-- TKVDB_PARAM isn't implemented
 - Cursor seek/prev/last
 
 ## License
