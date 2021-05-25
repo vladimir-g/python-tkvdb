@@ -274,7 +274,7 @@ Module `tkvdb.iterators` provides three dict-like iterators that use
 They can be used with transaction:
 
 ```python
-with self.db.transaction() as tr:
+with db.transaction() as tr:
     for key in tr:  # or tr.keys()
         print(tr[key])
     for value in tr.values():
@@ -288,7 +288,7 @@ In all loops new instance of `Cursor` is used.
 They also can be used with cursor:
 
 ```python
-with self.db.transaction() as tr:
+with db.transaction() as tr:
     with tr.cursor() as c:
         for key in c:
             print(c.key(), c.keysize())
@@ -298,7 +298,7 @@ Notice that cursor iterators use same underlying `Cursor` object, so
 they would iterate from same place where cursor stopped before:
 
 ```python
-with self.db.transaction() as tr:
+with db.transaction() as tr:
     with tr.cursor() as c:
         c.first()
         # do some iteration with c.next()
@@ -327,7 +327,7 @@ such purposes.
 Example usage:
 
 ```python
-with self.db.transaction() as tr:
+with db.transaction() as tr:
     with tr.cursor() as c:
         c.first()
         while True:
@@ -342,7 +342,7 @@ Cursor also may be used without `with` statement, it would be freed
 anyway on garbage collection:
 
 ```python
-with self.db.transaction() as tr:
+with db.transaction() as tr:
     c = tr.cursor():
     c.first()
     # ...
@@ -351,6 +351,25 @@ with self.db.transaction() as tr:
 Notice: `first` and `next` methods throw `tkvdb.errors.EmptyError` on
 empty database, not `NotFoundError`. Cursors may be iterated by using
 iterators (see previous section).
+
+Cursor can be used for search with `seek()` method. This allows
+searching k-v pair by prefix using seek criteria. Criterias are
+defined in `tkvdb.cursor.Seek` enum:
+
+- `Seek.EQ` -- search for the exact key match.
+- `Seek.LE` -- search for less (in terms of memcmp()) or equal key.
+- `Seek.GE` -- search for greater (in terms of memcmp()) or equal key.
+
+```python
+from tkvdb.cursor import Seek
+
+with db.transaction() as tr:
+    with tr.cursor() as c:
+        c.seek(b'key', Seek.EQ)
+        key = c.key()
+        # ...
+        c.next()
+```
 
 Attributes (readonly):
 - `is_initialized: bool` -- shows that cursor underlying
@@ -367,6 +386,8 @@ Cursor methods.
 - `valsize() -> int` -- get current value size.
 - `free()` -- free cursor.
 - `__iter__()` -- returns `tkvdb.iterators.KeysIterator`.
+- `seek(key: bytes, seek: tkvdb.cursor.Seek)` -- search key by
+  criteria.
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
 
 ### Params
