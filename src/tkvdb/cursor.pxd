@@ -16,6 +16,7 @@ cdef class Cursor:
     cpdef next(self)
     cpdef first(self)
     cpdef free(self)
+    cpdef seek(self, bytes key, seek)
     cpdef BaseIterator items(self)
     cpdef BaseIterator values(self)
     cpdef BaseIterator keys(self)

@@ -2,6 +2,7 @@ import unittest
 
 from tkvdb import Tkvdb
 from tkvdb.errors import NotFoundError, EmptyError
+from tkvdb.cursor import Seek
 from .base import TestMixin
 
 
@@ -81,6 +82,60 @@ class TestCursor(TestMixin, unittest.TestCase):
                         break
                 self.assertEqual(set(keys), set(values.keys()))
                 self.assertEqual(set(vals), set(values.values()))
+
+    def test_seek_eq(self):
+        """Test cursor seek iteration with Seek.EQ."""
+        values = self.create_data('seek')
+
+        # Check seek from third element, EQ
+        with self.db.transaction() as tr:
+            with tr.cursor() as c:
+                c.seek(b'seek-3', Seek.EQ)
+                # Two sets for comparing db keys and values
+                keys = set()
+                while True:
+                    k, v = c.key(), c.val()
+                    keys.add(k)
+                    self.assertEqual(v, values[k])
+                    self.assertEqual(len(k), c.keysize())
+                    try:
+                        c.next()
+                    except NotFoundError:
+                        break
+                self.assertEqual(set(keys), set(sorted(values.keys())[3:]))
+
+    def seek_common(self, type_, index):
+        """Common code for testing Seek.GE and Seek.LE."""
+        values = []
+        with self.db.transaction() as tr:
+            for i in range(10):
+                if i == 5:
+                    continue
+                k = str(i).encode('utf-8')
+                tr[k] = k
+                values.append(k)
+            tr.commit()
+        with self.db.transaction() as tr:
+            with tr.cursor() as c:
+                c.seek(b'5', type_)
+                keys = set()
+                while True:
+                    k = c.key()
+                    keys.add(k)
+                    self.assertEqual(len(k), c.keysize())
+                    try:
+                        c.next()
+                    except NotFoundError:
+                        break
+                self.assertEqual(set(keys), set(values[index:]))
+
+    def test_seek_ge(self):
+        """Test cursor seek iteration with Seek.GE."""
+        self.seek_common(Seek.GE, 5)
+
+    def test_seek_le(self):
+        """Test cursor seek iteration with Seek.LE."""
+        self.seek_common(Seek.LE, 4)
 
 
 if __name__ == '__main__':

@@ -1,8 +1,17 @@
-from cpython.bytes cimport PyBytes_FromStringAndSize
+import enum
+from cpython.bytes cimport PyBytes_FromStringAndSize, PyBytes_AsStringAndSize
 
 cimport ctkvdb
+from ctkvdb cimport TKVDB_SEEK as S
 from tkvdb.iterators cimport KeysIterator, ItemsIterator, ValuesIterator
 from tkvdb.errors import make_error
+
+
+class Seek(enum.Enum):
+    """Enum wrapper for TKVDB_SEEK."""
+    EQ = S.TKVDB_SEEK_EQ
+    LE = S.TKVDB_SEEK_LE
+    GE = S.TKVDB_SEEK_GE
 
 
 cdef class Cursor:
@@ -63,6 +72,22 @@ cdef class Cursor:
             self.cursor.free(self.cursor)
             self.is_initialized = False
             self.is_started = False
+
+    cpdef seek(self, bytes key, seek):
+        """Call cursor seek method with Seek param."""
+        # Create key
+        cdef ctkvdb.tkvdb_datum key_datum
+        PyBytes_AsStringAndSize(
+            key,
+            <char **>&key_datum.data,
+            <Py_ssize_t *>&key_datum.size
+        )
+
+        ok = self.cursor.seek(self.cursor, &key_datum, seek.value)
+        if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
+            error = make_error(ok)
+            if error is not None:
+                raise error()
 
     def __dealloc__(self):
         """Destructor."""
