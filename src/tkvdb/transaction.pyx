@@ -27,10 +27,13 @@ cdef class Transaction:
         self.ram_only = ram_only
         self.is_started = False
 
+    cdef ctkvdb.tkvdb_tr* get_transaction(self):
+        """Return internal tkvdb_tr pointer."""
+        return self.tr
+
     cpdef Cursor cursor(self):
         """Create and initialize Cursor."""
-        c = Cursor()
-        c.init(self.tr)
+        c = Cursor(self)
         return c
 
     cpdef begin(self):

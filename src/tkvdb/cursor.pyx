@@ -3,6 +3,7 @@ from cpython.bytes cimport PyBytes_FromStringAndSize, PyBytes_AsStringAndSize
 
 cimport ctkvdb
 from ctkvdb cimport TKVDB_SEEK as S
+from tkvdb.transaction cimport Transaction
 from tkvdb.iterators cimport KeysIterator, ItemsIterator, ValuesIterator
 from tkvdb.errors import make_error
 
@@ -16,14 +17,12 @@ class Seek(enum.Enum):
 
 cdef class Cursor:
     """Pythonic wrapper around tkvdb cursor."""
-    def __cinit__(self):
-        self.is_initialized = False
+    def __cinit__(self, Transaction tr):
         self.is_started = False
-
-    cdef init(self, ctkvdb.tkvdb_tr* tr):
-        """Initialize C cursor."""
         self.tr = tr
-        self.cursor = ctkvdb.tkvdb_cursor_create(tr) # FIXME
+        self.cursor = ctkvdb.tkvdb_cursor_create(
+            tr.get_transaction()
+        )
         self.is_initialized = True
 
     cpdef bytes key(self):

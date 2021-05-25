@@ -1,14 +1,14 @@
 cimport ctkvdb
+cimport tkvdb.transaction as tr
 from tkvdb.iterators cimport BaseIterator
 
 
 cdef class Cursor:
-    cdef ctkvdb.tkvdb_tr* tr
     cdef ctkvdb.tkvdb_cursor* cursor
+    cdef readonly tr.Transaction tr
     cdef readonly bint is_initialized
     cdef readonly bint is_started
 
-    cdef init(self, ctkvdb.tkvdb_tr* tr)
     cpdef bytes key(self)
     cpdef bytes val(self)
     cpdef Py_ssize_t keysize(self)

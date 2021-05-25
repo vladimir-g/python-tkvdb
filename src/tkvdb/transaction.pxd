@@ -15,6 +15,7 @@ cdef class Transaction:
     cdef readonly db.Tkvdb db
 
     cpdef Cursor cursor(self)
+    cdef ctkvdb.tkvdb_tr* get_transaction(self)
     cpdef begin(self)
     cpdef commit(self)
     cpdef rollback(self)
