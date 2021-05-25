@@ -56,9 +56,27 @@ cdef class Cursor:
             if error is not None:
                 raise error()
 
+    cpdef prev(self):
+        """Call cursor prev method."""
+        ok = self.cursor.prev(self.cursor)
+        if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
+            error = make_error(ok)
+            if error is not None:
+                raise error()
+
     cpdef first(self):
         """Call cursor first method."""
         ok = self.cursor.first(self.cursor)
+        if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
+            error = make_error(ok)
+            if error is not None:
+                raise error()
+        else:
+            self.is_started = True
+
+    cpdef last(self):
+        """Call cursor last method."""
+        ok = self.cursor.last(self.cursor)
         if ok != ctkvdb.TKVDB_RES.TKVDB_OK:
             error = make_error(ok)
             if error is not None:
@@ -88,6 +106,8 @@ cdef class Cursor:
             error = make_error(ok)
             if error is not None:
                 raise error()
+        else:
+            self.is_started = True
 
     def __dealloc__(self):
         """Destructor."""
@@ -117,4 +137,4 @@ cdef class Cursor:
         """Context manager exit."""
         self.free()
 
-    # FIXME add seex, last, prev, key_datum/val_datum
+    # FIXME add key_datum/val_datum

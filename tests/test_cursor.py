@@ -25,15 +25,35 @@ class TestCursor(TestMixin, unittest.TestCase):
                 c.first()
             with self.assertRaises(NotFoundError):
                 c.next()
-            tr[b'key'] = b'value'
+            tr[b'key1'] = b'value1'
+            tr[b'key2'] = b'value2'
             tr.commit()
 
         with self.db.transaction() as tr:
             c = tr.cursor()
             c.first()
             self.assertTrue(c.is_started)
-            self.assertEqual(c.key(), b'key')
-            self.assertEqual(c.val(), b'value')
+            self.assertEqual(c.key(), b'key1')
+            self.assertEqual(c.val(), b'value1')
+
+    def test_last(self):
+        """Test cursor last method."""
+        with self.db.transaction() as tr:
+            c = tr.cursor()
+            with self.assertRaises(EmptyError):
+                c.last()
+            with self.assertRaises(NotFoundError):
+                c.prev()
+            tr[b'key1'] = b'value1'
+            tr[b'key2'] = b'value2'
+            tr.commit()
+
+        with self.db.transaction() as tr:
+            c = tr.cursor()
+            c.last()
+            self.assertTrue(c.is_started)
+            self.assertEqual(c.key(), b'key2')
+            self.assertEqual(c.val(), b'value2')
 
     def test_next(self):
         """Test cursor next iteration."""
@@ -42,12 +62,12 @@ class TestCursor(TestMixin, unittest.TestCase):
         with self.db.transaction() as tr:
             c = tr.cursor()
             c.first()
-            # Two sets for comparing db keys and values
-            keys = set()
+            # Sequences for comparing db keys and values
+            keys = []
             vals = set()
             while True:
                 k, v = c.key(), c.val()
-                keys.add(k)
+                keys.append(k)
                 vals.add(v)
                 self.assertEqual(v, values[k])
                 self.assertEqual(len(k), c.keysize())
@@ -56,11 +76,35 @@ class TestCursor(TestMixin, unittest.TestCase):
                     c.next()
                 except NotFoundError:
                     break
-            self.assertEqual(set(keys), set(values.keys()))
+            self.assertEqual(keys, list(values.keys()))
+            self.assertEqual(set(vals), set(values.values()))
+
+    def test_prev(self):
+        """Test cursor prev iteration."""
+        values = self.create_data('next')
+
+        with self.db.transaction() as tr:
+            c = tr.cursor()
+            c.last()
+            # Sequences for comparing db keys and values
+            keys = []
+            vals = set()
+            while True:
+                k, v = c.key(), c.val()
+                keys.append(k)
+                vals.add(v)
+                self.assertEqual(v, values[k])
+                self.assertEqual(len(k), c.keysize())
+                self.assertEqual(len(v), c.valsize())
+                try:
+                    c.prev()
+                except NotFoundError:
+                    break
+            self.assertEqual(keys, list(reversed(values.keys())))
             self.assertEqual(set(vals), set(values.values()))
 
     def test_context_manager(self):
-        """Test with statement ."""
+        """Test with statement."""
         values = self.create_data('next')
 
         with self.db.transaction() as tr:
