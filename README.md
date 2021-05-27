@@ -239,6 +239,8 @@ Transaction methods. Most of them may raise an exception:
 - `free()` -- free transaction (called in `with` statement
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
+- `cursor(seek_key=None, seek_type=Seek.EQ)` -- return transaction
+  cursor (see `Cursors`), with optional seek.
 
 
 #### RAM-only transactions
@@ -332,6 +334,14 @@ with db.transaction() as tr:
             print(value)
 ```
 
+Cursors created from transacton can used for searching (as shorthand
+for `tkvdb.cursor.Cursor.seek()`). More information in next section.
+
+```python
+with db.transaction() as tr:
+    with tr.cursor(seek_key=b'seek-tr-31', seek_type=Seek.GE) as c:
+        print(c.key())
+```
 
 ### Cursors
 
@@ -386,6 +396,9 @@ defined in `tkvdb.cursor.Seek` enum:
 - `Seek.LE` -- search for less (in terms of memcmp()) or equal key.
 - `Seek.GE` -- search for greater (in terms of memcmp()) or equal key.
 
+Seeking is also may be initiated using `Transaction.cursor()` method
+(see more in `Transactions` section).
+
 ```python
 from tkvdb.cursor import Seek
 
@@ -395,6 +408,9 @@ with db.transaction() as tr:
         key = c.key()
         # ...
         c.next()
+
+    with tr.cursor(seek_key=b'key') as c:
+        # ...
 ```
 
 Attributes (readonly):

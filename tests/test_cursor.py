@@ -181,6 +181,36 @@ class TestCursor(TestMixin, unittest.TestCase):
         """Test cursor seek iteration with Seek.LE."""
         self.seek_common(Seek.LE, 4)
 
+    def test_seek_transaction(self):
+        """Test cursor seek when called from transaction."""
+        values = self.create_data('seek-tr')
+
+        with self.db.transaction() as tr:
+            # Test default
+            with tr.cursor(seek_key=b'seek-tr-3') as c:
+                keys = set()
+                while True:
+                    k, v = c.key(), c.val()
+                    keys.add(k)
+                    try:
+                        c.next()
+                    except NotFoundError:
+                        break
+                self.assertEqual(set(keys), set(sorted(values.keys())[3:]))
+
+            # Test GE
+            with tr.cursor(seek_key=b'seek-tr-31', seek_type=Seek.GE) as c:
+                keys = set()
+                while True:
+                    k, v = c.key(), c.val()
+                    keys.add(k)
+                    try:
+                        c.next()
+                    except NotFoundError:
+                        break
+                self.assertEqual(set(keys), set(sorted(values.keys())[4:]))
+
+
 
 if __name__ == '__main__':
     unittest.main()

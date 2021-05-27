@@ -2,6 +2,7 @@ from cpython.bytes cimport PyBytes_FromStringAndSize, PyBytes_AsStringAndSize
 
 cimport ctkvdb
 from tkvdb.cursor cimport Cursor
+from tkvdb.cursor import Seek
 from tkvdb.iterators cimport KeysIterator, ItemsIterator, ValuesIterator
 from tkvdb.errors import make_error, NotFoundError, EmptyError
 from tkvdb.params cimport Params
@@ -31,9 +32,11 @@ cdef class Transaction:
         """Return internal tkvdb_tr pointer."""
         return self.tr
 
-    cpdef Cursor cursor(self):
+    cpdef Cursor cursor(self, bytes seek_key=None, seek_type=Seek.EQ):
         """Create and initialize Cursor."""
         c = Cursor(self)
+        if seek_key is not None:
+            c.seek(seek_key, seek_type)
         return c
 
     cpdef begin(self):

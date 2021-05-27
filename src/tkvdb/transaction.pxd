@@ -14,7 +14,7 @@ cdef class Transaction:
     cdef readonly Params params
     cdef readonly db.Tkvdb db
 
-    cpdef Cursor cursor(self)
+    cpdef Cursor cursor(self, bytes seek_key=*, seek_type=*)
     cdef ctkvdb.tkvdb_tr* get_transaction(self)
     cpdef begin(self)
     cpdef commit(self)
