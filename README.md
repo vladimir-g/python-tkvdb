@@ -236,6 +236,7 @@ Transaction methods. Most of them may raise an exception:
   default value.
 - `delete(key: bytes)` -- delete value by key.
 - `__getitem__`, `__setitem__`, `__delitem__` -- dict-like methods.
+- `__contains__` -- allows usage of `in` operator.
 - `free()` -- free transaction (called in `with` statement
   automatically).
 - `keys()`, `values()`, `items()` -- return dict-like iterators.
