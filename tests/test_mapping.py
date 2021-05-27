@@ -46,6 +46,18 @@ class TestMapping(TestMixin, unittest.TestCase):
             with self.assertRaises(KeyError):
                 tr[b'to-delete']
 
+    def test_contains(self):
+        """Test 'in' operator for transaction."""
+        with self.db.transaction() as tr:
+            tr[b'key1'] = b'val1'
+            tr[b'key2'] = b'val2'
+            tr.commit()
+
+        with self.db.transaction() as tr:
+            self.assertTrue(b'key1' in tr)
+            self.assertTrue(b'key2' in tr)
+            self.assertFalse(b'key3' in tr)
+
 
 if __name__ == '__main__':
     unittest.main()

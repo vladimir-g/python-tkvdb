@@ -155,7 +155,13 @@ cdef class Transaction:
         """Return reversed keys iterator."""
         return reversed(self.keys())
 
-    # FIXME __contains__
+    def __contains__(self, bytes key):
+        """Python method for 'in' operator."""
+        try:
+            self.getvalue(key)
+            return True
+        except (EmptyError, NotFoundError):
+            return False
 
     cpdef BaseIterator items(self):
         """Dict-like items iterator."""
