@@ -317,8 +317,7 @@ defined in `tkvdb.cursor` module, C implementation is wrapped in
 `tkvdb.cursor.Cursor` class.
 
 Cursors are attached to transaction and created by
-`Transacion.cursor()` method. They also may be created directly, but
-need to be initialized in Cython.
+`Transacion.cursor()` method. They also may be created directly.
 
 Although cursors are sole way to iterate and seek in tkvdb, it is
 better and easier to use python-style iterators for
@@ -352,6 +351,10 @@ Notice: `first` and `next` methods throw `tkvdb.errors.EmptyError` on
 empty database, not `NotFoundError`. Cursors may be iterated by using
 iterators (see previous section).
 
+Cursor also may be iterated in reverse order using `prev()`
+method. Another method called `last()` moves cursor to last record and
+often useful for the reverse iteration.
+
 Cursor can be used for search with `seek()` method. This allows
 searching k-v pair by prefix using seek criteria. Criterias are
 defined in `tkvdb.cursor.Seek` enum:
@@ -379,7 +382,9 @@ Attributes (readonly):
 Cursor methods.
 
 - `first()` -- move cursor to first item in database.
+- `last()` -- move cursor to last item in database.
 - `next()` -- move cursor to next item in database.
+- `prev()` -- move cursor to previous item in database.
 - `key() -> bytes` -- get current key.
 - `val() -> bytes` -- get current value.
 - `keysize() -> int` -- get current key size.
@@ -514,10 +519,6 @@ Errors:
 - `NotStartedError` -- `TKVDB_RES.TKVDB_NOT_STARTED` code.
 - `ModifiedError` -- `TKVDB_RES.TKVDB_MODIFIED` code.
 
-
-## Missing features
-
-- Cursor seek/prev/last
 
 ## License
 
