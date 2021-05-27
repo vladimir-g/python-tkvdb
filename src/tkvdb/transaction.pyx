@@ -148,6 +148,10 @@ cdef class Transaction:
         """Return dict-like keys iterator as default."""
         return self.keys()
 
+    def __reversed__(self):
+        """Return reversed keys iterator."""
+        return reversed(self.keys())
+
     # FIXME __contains__
 
     cpdef BaseIterator items(self):

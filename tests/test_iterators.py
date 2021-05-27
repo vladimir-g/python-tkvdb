@@ -63,6 +63,30 @@ class TestIterators(TestMixin, unittest.TestCase):
                     self.assertTrue(value in data.values())
                     self.assertEqual(tr[key], data[key])
 
+    def test_cursor_reversed(self):
+        """Test cursor reversed iterators."""
+        keys = self.create_data('keys-reversed')
+        sorted_keys = list(reversed(sorted(keys.keys())))
+        with self.db.transaction() as tr:
+            with tr.cursor() as c:
+                for i, key in enumerate(reversed(c.keys())):
+                    self.assertEqual(sorted_keys[i], key)
+
+    def test_transaction_reversed(self):
+        """Test cursor reversed iterators."""
+        keys = self.create_data('keys-reversed')
+        sorted_keys = list(reversed(sorted(keys.keys())))
+
+        # Test default iterator
+        with self.db.transaction() as tr:
+            for i, key in enumerate(reversed(tr)):
+                self.assertEqual(sorted_keys[i], key)
+
+        # Test named iterator
+        with self.db.transaction() as tr:
+            for i, kv in enumerate(reversed(tr.items())):
+                self.assertEqual(sorted_keys[i], kv[0])
+
     def test_cursor_consistency(self):
         """Test cursor iterator consistency, it must be same cursor."""
         data = self.create_data('cons-cursor', num=10)

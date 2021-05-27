@@ -310,6 +310,29 @@ with db.transaction() as tr:
             print(value)
 ```
 
+Reverse iteration is available through the standard `reversed`
+function. Iterators and transaction have required methods for this.
+For new cursors iteration will start from the end using
+`tkvdb.cursor.Cursor.last`.
+
+```python
+with db.transaction() as tr:
+    for key in reversed(tr):
+        print(key)
+    # All iterator types allow this
+    for key, value in reversed(tr.items()):
+        print(key, value)
+
+with db.transaction() as tr:
+    with tr.cursor() as c:
+        for key in reversed(c):
+            print(key)
+    with tr.cursor() as c:
+        for value in reversed(c.values()):
+            print(value)
+```
+
+
 ### Cursors
 
 Cursors are used to iterate through database contents. They are
