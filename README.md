@@ -4,7 +4,7 @@ Python-tkvdb is a Cython wrapper for
 [tkvdb](https://github.com/vmxdev/tkvdb) trie key-value
 database. Python 3 is required.
 
-**Project is in alpha stage now.**
+Code isn't well tested in production environments.
 
 ## Installation
 
