@@ -118,7 +118,7 @@ cdef class Transaction:
             raise error()
         self.is_changed = True
 
-    cpdef delete(self, bytes key):
+    cpdef delete(self, bytes key, bint prefix=False):
         """Wrapper for tkvdb transaction delete."""
         cdef ctkvdb.tkvdb_datum key_datum
 
@@ -126,7 +126,10 @@ cdef class Transaction:
                                 <char **>&key_datum.data,
                                 <Py_ssize_t *>&key_datum.size)
 
-        ok = self.tr.delete(self.tr, &key_datum, 1) # FIXME del_pfx
+        del_pfx = 0
+        if prefix:
+            del_pfx = 1
+        ok = self.tr.delete(self.tr, &key_datum, del_pfx)
 
     def __getitem__(self, bytes key):
         """Python mapping __getitem__."""

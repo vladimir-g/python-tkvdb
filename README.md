@@ -215,6 +215,11 @@ with db.transaction() as tr:
         print(value)
 ```
 
+Multiple keys may be deleted by `delete` method using optional
+`prefix` argument (default `False`). Passing `True` allows deleting
+keys starting from prefix. Dict-like `del` operator always deletes
+only exact key.
+
 Attributes (readonly):
 - `is_initialized: bool` -- shows that transaction underlying
   structures are initialized properly.
@@ -234,7 +239,8 @@ Transaction methods. Most of them may raise an exception:
 - `put(key: bytes)` -- insert value into db by key.
 - `get(key: bytes, default: bytes = None) -> bytes` -- dict-like get with
   default value.
-- `delete(key: bytes)` -- delete value by key.
+- `delete(key: bytes, prefix=False)` -- delete value by key. With
+  `prefix=True` all keys staring with `key` will be deleted.
 - `__getitem__`, `__setitem__`, `__delitem__` -- dict-like methods.
 - `__contains__` -- allows usage of `in` operator.
 - `free()` -- free transaction (called in `with` statement

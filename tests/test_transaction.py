@@ -126,6 +126,23 @@ class TestTransaction(TestMixin, unittest.TestCase):
         with self.db.transaction() as tr:
             self.assertEqual(tr.getvalue(b'to-delete-rb'), b'value')
 
+    def test_delete_prefix(self):
+        """Test transaction delete with prefix."""
+        with self.db.transaction() as tr:
+            tr.put(b'to-delete-1', b'value')
+            tr.put(b'to-delete-2', b'value')
+            tr.put(b'other-prefix', b'value')
+            tr.commit()
+
+        with self.db.transaction() as tr:
+            self.assertEqual(tr.getvalue(b'to-delete-1'), b'value')
+            self.assertEqual(tr.getvalue(b'to-delete-2'), b'value')
+            tr.delete(b'to-delete', prefix=True)
+            with self.assertRaises(NotFoundError):
+                tr.getvalue(b'to-delete-1')
+                tr.getvalue(b'to-delete-2')
+            self.assertEqual(tr.getvalue(b'other-prefix'), b'value')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -22,7 +22,7 @@ cdef class Transaction:
     cpdef free(self)
     cpdef bytes getvalue(self, bytes key)
     cpdef put(self, bytes key, bytes value)
-    cpdef delete(self, bytes key)
+    cpdef delete(self, bytes key, bint prefix=*)
     cpdef BaseIterator items(self)
     cpdef BaseIterator values(self)
     cpdef BaseIterator keys(self)
