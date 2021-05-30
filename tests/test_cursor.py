@@ -100,7 +100,7 @@ class TestCursor(TestMixin, unittest.TestCase):
                     c.prev()
                 except NotFoundError:
                     break
-            self.assertEqual(keys, list(reversed(values.keys())))
+            self.assertEqual(keys, list(reversed(list(values.keys()))))
             self.assertEqual(set(vals), set(values.values()))
 
     def test_context_manager(self):

@@ -66,7 +66,7 @@ class TestIterators(TestMixin, unittest.TestCase):
     def test_cursor_reversed(self):
         """Test cursor reversed iterators."""
         keys = self.create_data('keys-reversed')
-        sorted_keys = list(reversed(sorted(keys.keys())))
+        sorted_keys = list(reversed(sorted(list(keys.keys()))))
         with self.db.transaction() as tr:
             with tr.cursor() as c:
                 for i, key in enumerate(reversed(c.keys())):
@@ -75,7 +75,7 @@ class TestIterators(TestMixin, unittest.TestCase):
     def test_transaction_reversed(self):
         """Test cursor reversed iterators."""
         keys = self.create_data('keys-reversed')
-        sorted_keys = list(reversed(sorted(keys.keys())))
+        sorted_keys = list(reversed(sorted(list(keys.keys()))))
 
         # Test default iterator
         with self.db.transaction() as tr:
