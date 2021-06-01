@@ -41,7 +41,7 @@ with open(readme, 'r', encoding='utf-8') as f:
 
 setup(
     name='python-tkvdb',
-    version='0.2.1',
+    version='0.2.2',
     author='Vladimir Gorbunov',
     author_email='vsg@suburban.me',
     url='https://github.com/vladimir-g/python-tkvdb/',
