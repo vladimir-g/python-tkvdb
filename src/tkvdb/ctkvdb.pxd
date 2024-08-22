@@ -1,5 +1,5 @@
 cdef extern from "tkvdb.h":
-    cpdef enum TKVDB_RES:
+    cdef enum TKVDB_RES:
         TKVDB_OK = 0
         TKVDB_IO_ERROR
         TKVDB_LOCKED
@@ -10,7 +10,7 @@ cdef extern from "tkvdb.h":
         TKVDB_NOT_STARTED
         TKVDB_MODIFIED
 
-    cpdef enum TKVDB_PARAM:
+    cdef enum TKVDB_PARAM:
         TKVDB_PARAM_TR_DYNALLOC
         TKVDB_PARAM_TR_LIMIT
         TKVDB_PARAM_ALIGNVAL
@@ -21,7 +21,7 @@ cdef extern from "tkvdb.h":
         TKVDB_PARAM_CURSOR_KEY_LIMIT
         TKVDB_PARAM_DBFILE_OPEN_FLAGS
 
-    cpdef enum TKVDB_SEEK:
+    cdef enum TKVDB_SEEK:
         TKVDB_SEEK_EQ
         TKVDB_SEEK_LE
         TKVDB_SEEK_GE
