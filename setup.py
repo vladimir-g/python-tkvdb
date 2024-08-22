@@ -41,7 +41,7 @@ with open(readme, 'r', encoding='utf-8') as f:
 
 setup(
     name='python-tkvdb',
-    version='0.2.2',
+    version='0.2.3',
     author='Vladimir Gorbunov',
     author_email='vsg@suburban.me',
     url='https://github.com/vladimir-g/python-tkvdb/',
@@ -72,5 +72,8 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ]
 )
